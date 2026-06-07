@@ -19,7 +19,6 @@ export async function POST(req: Request) {
 
     const timeTaken = timeLeft ? parseInt(timeLeft) : 0; 
     
-    // Fetch the original attempt to get the challenge
     const attemptRecord = await prisma.challengeAttempt.findUnique({
       where: { id: attemptId }
     });

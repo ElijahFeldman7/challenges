@@ -17,11 +17,11 @@ function ChallengeContent() {
   const [timeLeft, setTimeLeft] = useState(parseInt(timerString.replace('s', '')));
   const [blurs, setBlurs] = useState(0);
   const [userCode, setUserCode] = useState("");
+  const [userDescription, setUserDescription] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [gradingResult, setGradingResult] = useState<{isCorrect: boolean, explanation: string} | null>(null);
 
   const blurCountRef = useRef(0);
-
   const fetchedRef = useRef(false);
 
   useEffect(() => {
@@ -54,23 +54,32 @@ function ChallengeContent() {
       setTimeLeft(t => {
         if (t <= 1) {
           clearInterval(interval);
-          submitAnswer(userCode, true);
+          submitAnswer(type === 'Bug' ? userCode : userDescription, true);
           return 0;
         }
         return t - 1;
       });
     }, 1000);
 
-    const handleVisibility = () => {
-      if (document.visibilityState === 'hidden') {
+    let lastBlurTime = 0;
+
+    const recordBlur = () => {
+      const now = Date.now();
+      if (now - lastBlurTime > 1000) {
         blurCountRef.current += 1;
         setBlurs(blurCountRef.current);
+        lastBlurTime = now;
+      }
+    };
+
+    const handleVisibility = () => {
+      if (document.visibilityState === 'hidden') {
+        recordBlur();
       }
     };
 
     const handleBlur = () => {
-      blurCountRef.current += 1;
-      setBlurs(blurCountRef.current);
+      recordBlur();
     };
 
     document.addEventListener("visibilitychange", handleVisibility);
@@ -81,7 +90,7 @@ function ChallengeContent() {
       document.removeEventListener("visibilitychange", handleVisibility);
       window.removeEventListener("blur", handleBlur);
     };
-  }, [loading, submitted, userCode]);
+  }, [loading, submitted, userCode, userDescription, type]);
 
   const submitAnswer = async (finalAnswer: string, autoSubmit = false) => {
     if (submitted) return;
@@ -137,6 +146,8 @@ function ChallengeContent() {
     );
   }
 
+  const isBug = type === 'Bug';
+
   return (
     <div className="flex flex-col min-h-screen bg-neutral-900 text-neutral-100 font-mono">
       <div className="flex items-center justify-between p-4 border-b border-neutral-800">
@@ -161,27 +172,46 @@ function ChallengeContent() {
         ) : (
           <div className="flex flex-col h-full flex-1">
             <div className="p-4 bg-neutral-900 text-neutral-400 text-sm border-b border-neutral-800">
-              Fix the bug in the code below directly.
+              {isBug ? "Fix the bug in the code below directly." : "Analyze the content below and describe the issue."}
             </div>
-            <textarea 
-              className="flex-1 w-full bg-neutral-900 text-neutral-200 p-6 font-mono text-sm outline-none resize-none"
-              style={{ fontVariantLigatures: 'none', fontFeatureSettings: '"calt" 0' }}
-              value={userCode}
-              onChange={(e) => setUserCode(e.target.value)}
-              spellCheck={false}
-              autoCapitalize="off"
-              autoComplete="off"
-              autoCorrect="off"
-              data-gramm="false"
-              autoFocus
-            />
+            
+            {isBug ? (
+              <textarea 
+                className="flex-1 w-full bg-neutral-900 text-neutral-200 p-6 font-mono text-sm outline-none resize-none"
+                style={{ fontVariantLigatures: 'none', fontFeatureSettings: '"calt" 0' }}
+                value={userCode}
+                onChange={(e) => setUserCode(e.target.value)}
+                spellCheck={false}
+                autoCapitalize="off"
+                autoComplete="off"
+                autoCorrect="off"
+                data-gramm="false"
+                autoFocus
+              />
+            ) : (
+              <div className="flex-1 flex flex-col">
+                <div className="flex-1 w-full bg-neutral-900 text-neutral-400 p-6 font-mono text-sm overflow-auto">
+                  <pre><code>{userCode}</code></pre>
+                </div>
+                <div className="border-t border-neutral-800 bg-neutral-950 p-4">
+                  <textarea 
+                    className="w-full h-32 bg-neutral-900 border border-neutral-700 text-neutral-200 p-4 font-sans text-sm outline-none resize-none focus:border-neutral-500"
+                    placeholder="Describe the issue here..."
+                    value={userDescription}
+                    onChange={(e) => setUserDescription(e.target.value)}
+                    autoFocus
+                  />
+                </div>
+              </div>
+            )}
+
             <div className="p-4 border-t border-neutral-800 flex justify-end items-center gap-4">
               <div className="text-xs text-neutral-500 mr-auto bg-neutral-800 p-2 rounded">
                 <span className="font-bold text-neutral-400 uppercase tracking-widest text-[10px]">Demo Panel:</span><br/>
-                Expected Bug/Fix: <span className="text-neutral-300">{challengeData?.answer}</span>
+                Expected {isBug ? "Fix" : "Answer"}: <span className="text-neutral-300">{challengeData?.answer}</span>
               </div>
               <button 
-                onClick={() => submitAnswer(userCode)}
+                onClick={() => submitAnswer(isBug ? userCode : userDescription)}
                 className="px-8 py-2 bg-neutral-100 text-neutral-900 font-bold hover:bg-white transition-colors"
               >
                 SUBMIT
