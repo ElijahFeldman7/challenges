@@ -1,10 +1,10 @@
+// proxy.ts
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   // NextAuth handles its own session management via cookies.
-  // This middleware just passes requests through.
-  // Add route protection here if needed in the future.
+  // This proxy just passes requests through.
   return NextResponse.next()
 }
 
