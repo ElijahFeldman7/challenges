@@ -42,7 +42,7 @@ export default function Home() {
       <Navbar />
       <main className="max-w-5xl w-full mx-auto p-6 md:p-12">
         <h2 className="text-3xl font-bold mb-2 text-neutral-900">Available Challenges</h2>
-        <p className="text-neutral-500 mb-8">Select a technical challenge to begin. Be prepared: tab switching is tracked!</p>
+        <p className="text-neutral-500 mb-8">Select a technical challenge to begin. tab switching is tracked.</p>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           <ChallengeCard 
