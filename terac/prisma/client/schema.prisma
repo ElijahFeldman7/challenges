@@ -8,18 +8,18 @@ datasource db {
 }
 
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?
-  access_token       String?
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?
-  session_state      String?
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -35,9 +35,9 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String             @id @default(cuid())
   name          String?
-  email         String?   @unique
+  email         String?            @unique
   emailVerified DateTime?
   image         String?
   accounts      Account[]
@@ -54,24 +54,24 @@ model VerificationToken {
 }
 
 model ChallengeTemplate {
-  id                  String  @id @default(cuid())
+  id                  String @id @default(cuid())
   name                String
   type                String
   prompt_instructions String
 }
 
 model ChallengeAttempt {
-  id                    String   @id @default(cuid())
-  userId                String
-  challenge_type        String
-  ai_generated_content  String
-  start_time            DateTime @default(now())
-  end_time              DateTime?
-  time_taken_seconds    Int?
-  tab_blur_count        Int      @default(0)
-  user_answer           String?
-  is_correct            Boolean?
-  score                 Int?
+  id                   String    @id @default(cuid())
+  userId               String
+  challenge_type       String
+  ai_generated_content String
+  start_time           DateTime  @default(now())
+  end_time             DateTime?
+  time_taken_seconds   Int?
+  tab_blur_count       Int       @default(0)
+  user_answer          String?
+  is_correct           Boolean?
+  score                Int?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
